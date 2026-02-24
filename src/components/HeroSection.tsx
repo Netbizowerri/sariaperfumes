@@ -12,8 +12,8 @@ export default function HeroSection() {
           alt="Saria Perfumes luxury fragrance"
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-background/40" />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/50" />
+        <div className="absolute inset-0 bg-gradient-to-r from-white via-white/90 to-white/50" />
+        <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-white/60" />
       </div>
 
       <div className="relative container mx-auto px-6 py-32">
