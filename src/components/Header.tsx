@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingBag, Menu, X } from "lucide-react";
+import { ShoppingBag, Menu, X, Home, Store, Users, ChevronRight } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 
 const navLinks = [
-  { to: "/", label: "Home" },
-  { to: "/shop", label: "Shop" },
-  { to: "/distributor", label: "Distributors" },
+  { to: "/", label: "Home", icon: Home },
+  { to: "/shop", label: "Shop", icon: Store },
+  { to: "/distributor", label: "Distributors", icon: Users },
 ];
 
 export default function Header() {
@@ -74,28 +74,71 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Mobile Nav */}
+      {/* Mobile Nav - App-like tray */}
       <AnimatePresence>
         {mobileOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-background border-b border-border overflow-hidden"
-          >
-            <nav className="flex flex-col px-6 py-4 gap-4">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.to}
-                  to={link.to}
-                  onClick={() => setMobileOpen(false)}
-                  className="text-sm font-body tracking-widest uppercase text-muted-foreground hover:text-primary transition-colors"
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="md:hidden fixed inset-0 top-16 bg-foreground/20 backdrop-blur-sm z-40"
+              onClick={() => setMobileOpen(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="md:hidden absolute top-full left-0 right-0 bg-background border-b border-border shadow-lg z-50"
+            >
+              <nav className="flex flex-col p-3 gap-1">
+                {navLinks.map((link) => {
+                  const Icon = link.icon;
+                  const isActive = location.pathname === link.to;
+                  return (
+                    <Link
+                      key={link.to}
+                      to={link.to}
+                      onClick={() => setMobileOpen(false)}
+                      className={`flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-200 ${
+                        isActive
+                          ? "bg-primary/10 text-primary"
+                          : "text-foreground hover:bg-muted active:bg-muted"
+                      }`}
+                    >
+                      <Icon className="w-5 h-5 shrink-0" />
+                      <span className="flex-1 text-sm font-medium tracking-wide">
+                        {link.label}
+                      </span>
+                      <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                    </Link>
+                  );
+                })}
+
+                {/* Cart in mobile menu */}
+                <button
+                  onClick={() => {
+                    setMobileOpen(false);
+                    setIsOpen(true);
+                  }}
+                  className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-foreground hover:bg-muted active:bg-muted transition-all duration-200"
                 >
-                  {link.label}
-                </Link>
-              ))}
-            </nav>
-          </motion.div>
+                  <ShoppingBag className="w-5 h-5 shrink-0" />
+                  <span className="flex-1 text-left text-sm font-medium tracking-wide">
+                    Cart
+                  </span>
+                  {totalItems > 0 && (
+                    <span className="w-5 h-5 bg-primary text-primary-foreground text-[10px] font-bold rounded-full flex items-center justify-center">
+                      {totalItems}
+                    </span>
+                  )}
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                </button>
+              </nav>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
     </header>
