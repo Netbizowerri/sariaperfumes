@@ -3,8 +3,8 @@ import { Phone, MapPin, Mail } from "lucide-react";
 
 export default function Footer() {
   return (
-    <footer className="bg-card border-t border-border">
-      <div className="container mx-auto px-6 py-16">
+    <footer className="bg-card border-t border-border pb-20 md:pb-0">
+      <div className="container mx-auto px-4 sm:px-6 py-12 sm:py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Brand */}
           <div>
@@ -58,18 +58,18 @@ export default function Footer() {
           </div>
 
           {/* Newsletter */}
-          <div>
+          <div className="min-w-0">
             <h4 className="font-display text-lg text-foreground mb-4">Stay Updated</h4>
             <p className="text-sm text-muted-foreground mb-4">
               Get exclusive offers and new collection updates.
             </p>
-            <div className="flex">
+            <div className="flex w-full max-w-full overflow-hidden rounded-md border border-border">
               <input
                 type="email"
                 placeholder="Your email"
-                className="flex-1 bg-input border border-border px-4 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
+                className="min-w-0 flex-1 bg-input px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
               />
-              <button className="bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:bg-gold-light transition-colors">
+              <button className="bg-primary text-primary-foreground px-4 py-2.5 text-sm font-medium hover:bg-gold-light transition-colors whitespace-nowrap shrink-0">
                 Join
               </button>
             </div>
