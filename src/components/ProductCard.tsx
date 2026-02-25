@@ -48,16 +48,16 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
 
         {/* Info */}
         <div>
-          <p className="text-xs text-primary tracking-[0.3em] uppercase mb-1">
+          <p className="text-[10px] md:text-xs text-primary tracking-[0.3em] uppercase mb-1">
             {product.category.replace("-", " ")}
           </p>
-          <h3 className="font-display text-lg text-foreground group-hover:text-primary transition-colors duration-300">
+          <h3 className="text-sm md:text-lg text-foreground group-hover:text-primary transition-colors duration-300 leading-tight">
             {product.name}
           </h3>
-          <p className="text-sm text-muted-foreground mt-1">{product.short_description}</p>
-          <div className="flex items-center justify-between mt-3">
-            <span className="text-primary font-display text-lg">{formatPrice(product.price)}</span>
-            <span className="text-xs text-muted-foreground">{product.volume_ml}ml</span>
+          <p className="text-xs md:text-sm text-muted-foreground mt-1 hidden md:block">{product.short_description}</p>
+          <div className="flex items-center justify-between mt-2 md:mt-3">
+            <span className="text-primary text-sm md:text-lg font-semibold">{formatPrice(product.price)}</span>
+            <span className="text-[10px] md:text-xs text-muted-foreground">{product.volume_ml}ml</span>
           </div>
         </div>
       </Link>

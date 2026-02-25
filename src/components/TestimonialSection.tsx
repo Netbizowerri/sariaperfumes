@@ -24,7 +24,7 @@ const testimonials = [
 
 export default function TestimonialSection() {
   return (
-    <section className="py-24 bg-card">
+    <section className="py-24 bg-[#0B0B0B]">
       <div className="container mx-auto px-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -32,9 +32,9 @@ export default function TestimonialSection() {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <p className="text-primary text-xs tracking-[0.4em] uppercase mb-3">Testimonials</p>
-          <h2 className="font-display text-4xl md:text-5xl font-bold">
-            What Our <span className="text-gold-gradient">Clients</span> Say
+          <p className="text-gold-light text-xs tracking-[0.4em] uppercase mb-3">Testimonials</p>
+          <h2 className="text-4xl md:text-5xl font-bold text-white">
+            What Our <span className="text-gold-gradient-light">Clients</span> Say
           </h2>
         </motion.div>
 
@@ -46,17 +46,17 @@ export default function TestimonialSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.15 }}
-              className="p-8 border border-border hover:border-primary/30 transition-colors duration-500"
+              className="p-8 border border-white/10 hover:border-gold/30 transition-colors duration-500"
             >
               <div className="flex gap-1 mb-4">
                 {Array.from({ length: t.rating }).map((_, j) => (
-                  <Star key={j} className="w-4 h-4 fill-primary text-primary" />
+                  <Star key={j} className="w-4 h-4 fill-gold text-gold" />
                 ))}
               </div>
-              <p className="text-foreground text-sm leading-relaxed mb-6 italic">"{t.text}"</p>
+              <p className="text-white/80 text-sm leading-relaxed mb-6 italic">"{t.text}"</p>
               <div>
-                <p className="text-sm font-medium">{t.name}</p>
-                <p className="text-xs text-muted-foreground">{t.location}</p>
+                <p className="text-sm font-medium text-white">{t.name}</p>
+                <p className="text-xs text-white/50">{t.location}</p>
               </div>
             </motion.div>
           ))}
