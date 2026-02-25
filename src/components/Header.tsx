@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingBag, Menu, X, Home, Store, Users, ChevronRight } from "lucide-react";
+import { ShoppingBag, Menu, X, Home, Store, Users, Info, Phone, ChevronRight } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 
 const navLinks = [
   { to: "/", label: "Home", icon: Home },
   { to: "/shop", label: "Shop", icon: Store },
+  { to: "/about", label: "About", icon: Info },
   { to: "/distributor", label: "Distributors", icon: Users },
+  { to: "/contact", label: "Contact", icon: Phone },
 ];
 
 export default function Header() {
