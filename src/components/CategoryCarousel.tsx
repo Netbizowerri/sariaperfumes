@@ -1,54 +1,46 @@
 import { useRef, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { categories } from "@/data/products";
-import catSaria69 from "@/assets/cat-saria69.png";
-import catBlackKiss from "@/assets/cat-blackkiss.png";
-import catRoyalTouch from "@/assets/cat-royaltouch.png";
-import catHoligan from "@/assets/cat-holigan.jpg";
+import { brandHierarchy } from "@/data/brandStructure";
+import { useProductsData } from "@/context/ProductsContext";
 
-const categoryImages: Record<string, string> = {
-  "saria-69": catSaria69,
-  "black-kiss": catBlackKiss,
-  "royal-touch": catRoyalTouch,
-  "holigan": catHoligan,
-};
+const fallbackLogo = "/placeholder.svg";
 
 export default function CategoryCarousel() {
+  const { products } = useProductsData();
   const scrollRef = useRef<HTMLDivElement>(null);
+  const infiniteBrands = [...brandHierarchy, ...brandHierarchy, ...brandHierarchy];
 
-  // Clone items for infinite scroll: [...items, ...items, ...items]
-  const infiniteCategories = [...categories, ...categories, ...categories];
+  const resolveLogo = (brandSlug: string) => {
+    const brandInfo = brandHierarchy.find((brand) => brand.slug === brandSlug);
+    if (brandInfo?.logoUrl) return brandInfo.logoUrl;
+    return (
+      products.find((product) => product.brandSlug === brandSlug)?.image_url ?? fallbackLogo
+    );
+  };
 
-  // Start in the middle set so user can scroll both directions
   useEffect(() => {
-    if (scrollRef.current) {
-      const singleSetWidth = scrollRef.current.scrollWidth / 3;
-      scrollRef.current.scrollLeft = singleSetWidth;
-    }
+    if (!scrollRef.current) return;
+    const singleSetWidth = scrollRef.current.scrollWidth / 3;
+    scrollRef.current.scrollLeft = singleSetWidth;
   }, []);
 
   const handleScroll = useCallback(() => {
     const el = scrollRef.current;
     if (!el) return;
     const singleSetWidth = el.scrollWidth / 3;
-
-    // If scrolled past the end of the middle set, jump back to middle
     if (el.scrollLeft >= singleSetWidth * 2) {
       el.scrollLeft -= singleSetWidth;
     }
-    // If scrolled before the start of the middle set, jump forward to middle
     if (el.scrollLeft <= 0) {
       el.scrollLeft += singleSetWidth;
     }
   }, []);
 
-  const scroll = (dir: "left" | "right") => {
-    if (scrollRef.current) {
-      const amount = dir === "left" ? -220 : 220;
-      scrollRef.current.scrollBy({ left: amount, behavior: "smooth" });
-    }
+  const scroll = (direction: "left" | "right") => {
+    if (!scrollRef.current) return;
+    const amount = direction === "left" ? -220 : 220;
+    scrollRef.current.scrollBy({ left: amount, behavior: "smooth" });
   };
 
   return (
@@ -67,48 +59,44 @@ export default function CategoryCarousel() {
         </motion.div>
 
         <div className="relative">
-          {/* Scroll Buttons */}
           <button
             onClick={() => scroll("left")}
             className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center bg-background/80 border border-border hover:border-primary transition-colors rounded-full -ml-2"
           >
-            <ChevronLeft className="w-5 h-5 text-foreground" />
+            <span className="sr-only">Previous</span>
+            <div className="w-4 h-4 border-t border-l border-foreground rotate-45" />
           </button>
           <button
             onClick={() => scroll("right")}
             className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center bg-background/80 border border-border hover:border-primary transition-colors rounded-full -mr-2"
           >
-            <ChevronRight className="w-5 h-5 text-foreground" />
+            <span className="sr-only">Next</span>
+            <div className="w-4 h-4 border-b border-r border-foreground rotate-45" />
           </button>
 
-          {/* Scrollable Container */}
           <div
             ref={scrollRef}
             onScroll={handleScroll}
             className="flex gap-6 overflow-x-auto scrollbar-hide px-6 snap-x"
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           >
-            {infiniteCategories.map((cat, i) => (
-              <div
-                key={`${cat.id}-${i}`}
-                className="snap-center shrink-0"
+            {infiniteBrands.map((brand, index) => (
+              <Link
+                key={`${brand.slug}-${index}`}
+                to={`/shop?brand=${brand.slug}`}
+                className="snap-center shrink-0 w-[40%] sm:w-[36%] md:w-[30%] lg:w-[22%]"
               >
-                <Link
-                  to={`/shop?category=${cat.slug}`}
-                  className="flex flex-col items-center gap-4 min-w-[180px] md:min-w-[250px] group"
-                >
-                  <div className="w-36 h-36 md:w-48 md:h-48 rounded-full border-2 border-border group-hover:border-primary transition-all duration-500 flex items-center justify-center bg-card group-hover:bg-primary/5 overflow-hidden p-4">
+                <div className="flex flex-col items-center gap-3">
+                  <div className="w-28 h-28 md:w-32 md:h-32 rounded-full border border-border overflow-hidden flex items-center justify-center bg-card shadow-lg">
                     <img
-                      src={categoryImages[cat.slug]}
-                      alt={cat.name}
-                      className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500"
+                      src={resolveLogo(brand.slug)}
+                      alt={brand.name}
+                      className="w-3/4 h-3/4 object-contain"
                     />
                   </div>
-                  <h3 className="text-sm md:text-base font-medium tracking-[0.15em] uppercase text-foreground group-hover:text-primary transition-colors duration-300">
-                    {cat.name}
-                  </h3>
-                </Link>
-              </div>
+                  <p className="text-sm uppercase tracking-[0.4em] text-foreground">{brand.name}</p>
+                </div>
+              </Link>
             ))}
           </div>
         </div>

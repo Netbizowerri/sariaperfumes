@@ -1,15 +1,16 @@
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 import { motion } from "framer-motion";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { ArrowLeft, CheckCircle, ArrowRight } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { formatPrice } from "@/data/products";
 import { toast } from "sonner";
+import { createOrder } from "@/services/store";
 
 export default function CheckoutPage() {
   const { items, totalAmount, totalItems, clearCart } = useCart();
-  const navigate = useNavigate();
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
     full_name: "",
     phone: "",
@@ -18,6 +19,7 @@ export default function CheckoutPage() {
     city: "",
     notes: "",
   });
+  const patronName = form.full_name.trim() || "Valued Patron";
 
   if (items.length === 0 && !submitted) {
     return (
@@ -41,29 +43,61 @@ export default function CheckoutPage() {
           className="text-center max-w-md mx-auto p-8"
         >
           <CheckCircle className="w-20 h-20 text-primary mx-auto mb-6" />
-          <h1 className="font-display text-3xl mb-3">Order Placed!</h1>
+          <h1 className="font-display text-3xl mb-3">Thank you, {patronName}!</h1>
           <p className="text-muted-foreground mb-2">
-            Thank you for your order. You will pay on delivery.
+            Your order has been received and will be confirmed shortly.
           </p>
           <p className="text-sm text-muted-foreground mb-8">
-            We will contact you on the phone number provided to confirm your order and delivery details.
+            Expect a call to confirm delivery details; payment will be collected on delivery.
           </p>
-          <Link
-            to="/shop"
-            className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-4 text-sm font-medium tracking-[0.2em] uppercase hover:bg-gold-light transition-all duration-300"
-          >
-            Continue Shopping
-          </Link>
+          <div className="flex flex-wrap justify-center gap-4">
+            <Link
+              to="/shop"
+              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 text-xs font-semibold tracking-[0.3em] uppercase hover:bg-gold-light transition-all duration-300"
+            >
+              Continue Shopping
+            </Link>
+            <Link
+              to="/"
+              className="inline-flex items-center gap-2 border border-border text-foreground px-6 py-3 text-xs font-semibold tracking-[0.3em] uppercase hover:border-primary hover:text-primary transition-all duration-300"
+            >
+              Back to Homepage
+            </Link>
+          </div>
         </motion.div>
       </div>
     );
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    clearCart();
-    setSubmitted(true);
-    toast.success("Order placed successfully!");
+
+    setSubmitting(true);
+    try {
+      await createOrder({
+        ...form,
+        totalAmount,
+        totalItems,
+        items: items.map((item) => ({
+          product_id: item.product.id,
+          slug: item.product.slug,
+          name: item.product.name,
+          image_url: item.product.image_url,
+          volume_ml: item.product.volume_ml,
+          quantity: item.quantity,
+          price: item.product.price,
+        })),
+      });
+
+      clearCart();
+      setSubmitted(true);
+      toast.success("Order placed successfully!");
+    } catch (error) {
+      console.error(error);
+      toast.error("Could not place order. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -79,7 +113,6 @@ export default function CheckoutPage() {
         <h1 className="font-display text-3xl md:text-4xl font-bold mb-8">Checkout</h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Delivery Info Form */}
           <div>
             <h2 className="font-display text-xl mb-6">Delivery Information</h2>
             <form id="checkout-form" onSubmit={handleSubmit} className="space-y-5">
@@ -161,7 +194,6 @@ export default function CheckoutPage() {
             </form>
           </div>
 
-          {/* Order Summary */}
           <div>
             <h2 className="font-display text-xl mb-6">Order Summary</h2>
             <div className="border border-border p-6 bg-card space-y-4">
@@ -200,9 +232,10 @@ export default function CheckoutPage() {
               <button
                 type="submit"
                 form="checkout-form"
-                className="w-full bg-primary text-primary-foreground py-4 text-sm font-medium tracking-[0.2em] uppercase hover:bg-gold-light transition-all duration-300 flex items-center justify-center gap-2 luxury-shadow mt-4"
+                disabled={submitting}
+                className="w-full bg-primary text-primary-foreground py-4 text-sm font-medium tracking-[0.2em] uppercase hover:bg-gold-light transition-all duration-300 flex items-center justify-center gap-2 luxury-shadow mt-4 disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                Place Order — Pay on Delivery <ArrowRight className="w-4 h-4" />
+                {submitting ? "Placing Order..." : "Place Order - Pay on Delivery"} <ArrowRight className="w-4 h-4" />
               </button>
             </div>
           </div>

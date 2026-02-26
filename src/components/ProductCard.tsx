@@ -50,14 +50,16 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
 
         {/* Info */}
         <div>
-          <p className="text-[10px] md:text-xs text-primary tracking-[0.3em] uppercase mb-1">
-            {product.category.replace("-", " ")}
+          <p className="text-[10px] md:text-[11px] text-muted-foreground tracking-[0.4em] uppercase mb-1">
+            {product.brand}
           </p>
-          <h3 className="text-sm md:text-lg text-foreground group-hover:text-primary transition-colors duration-300 leading-tight">
+          <h3 className="text-base md:text-xl text-foreground font-semibold mb-2 transition-colors duration-300 group-hover:text-primary">
             {product.name}
           </h3>
-          <p className="text-xs md:text-sm text-muted-foreground mt-1 hidden md:block">{product.short_description}</p>
-          <div className="flex items-center justify-between mt-2 md:mt-3">
+          <p className="text-xs md:text-sm text-muted-foreground leading-relaxed mb-4">
+            {product.short_description}
+          </p>
+          <div className="flex items-center justify-between">
             <span className="text-primary text-sm md:text-lg font-semibold">{formatPrice(product.price)}</span>
             <span className="text-[10px] md:text-xs text-muted-foreground">{product.volume_ml}ml</span>
           </div>

@@ -1,10 +1,11 @@
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { products, categories } from "@/data/products";
+import { useProductsData } from "@/context/ProductsContext";
 import ProductCard from "@/components/ProductCard";
+import { brandHierarchy } from "@/data/brandStructure";
+import { genderOptions, subCategoryDefaults } from "@/data/categoryConfig";
 
-const genders = ["all", "men", "women", "unisex"] as const;
 const sortOptions = [
   { value: "default", label: "Featured" },
   { value: "price-asc", label: "Price: Low to High" },
@@ -13,17 +14,30 @@ const sortOptions = [
 ];
 
 export default function ShopPage() {
+  const { products, loading, error } = useProductsData();
   const [searchParams, setSearchParams] = useSearchParams();
-  const initialCategory = searchParams.get("category") || "all";
 
-  const [selectedCategory, setSelectedCategory] = useState(initialCategory);
-  const [selectedGender, setSelectedGender] = useState<string>("all");
+  const categoryParam = searchParams.get("category");
+  const isCategoryBrand = Boolean(
+    categoryParam && brandHierarchy.some((brand) => brand.slug === categoryParam),
+  );
+  const initialBrand = searchParams.get("brand") || (isCategoryBrand ? categoryParam : "all");
+  const initialSubCategory =
+    searchParams.get("subcategory") ?? (isCategoryBrand ? "all" : categoryParam ?? "all");
+  const initialGender = searchParams.get("gender") ?? "all";
+
+  const [selectedBrand, setSelectedBrand] = useState(initialBrand);
+  const [selectedSubCategory, setSelectedSubCategory] = useState(initialSubCategory);
+  const [selectedGender, setSelectedGender] = useState(initialGender);
   const [sortBy, setSortBy] = useState("default");
 
   const filtered = useMemo(() => {
     let result = [...products];
-    if (selectedCategory !== "all") {
-      result = result.filter((p) => p.category === selectedCategory);
+    if (selectedBrand !== "all") {
+      result = result.filter((p) => p.brandSlug === selectedBrand);
+    }
+    if (selectedSubCategory !== "all") {
+      result = result.filter((p) => p.category === selectedSubCategory);
     }
     if (selectedGender !== "all") {
       result = result.filter((p) => p.gender === selectedGender);
@@ -40,22 +54,45 @@ export default function ShopPage() {
         break;
     }
     return result;
-  }, [selectedCategory, selectedGender, sortBy]);
+  }, [products, selectedBrand, selectedSubCategory, selectedGender, sortBy]);
 
-  const handleCategoryChange = (cat: string) => {
-    setSelectedCategory(cat);
-    if (cat === "all") {
-      searchParams.delete("category");
-    } else {
-      searchParams.set("category", cat);
+  const updateParams = (updates: Partial<Record<"brand" | "subcategory" | "gender", string>>) => {
+    const nextParams = new URLSearchParams(searchParams);
+    if ("brand" in updates) {
+      if (updates.brand === "all") nextParams.delete("brand");
+      else nextParams.set("brand", updates.brand);
+      nextParams.delete("category");
     }
-    setSearchParams(searchParams);
+    if ("subcategory" in updates) {
+      if (updates.subcategory === "all") nextParams.delete("subcategory");
+      else nextParams.set("subcategory", updates.subcategory);
+    }
+    if ("gender" in updates) {
+      if (updates.gender === "all") nextParams.delete("gender");
+      else nextParams.set("gender", updates.gender);
+    }
+    setSearchParams(nextParams);
+  };
+
+  const handleBrandChange = (brandSlug: string) => {
+    setSelectedBrand(brandSlug);
+    setSelectedSubCategory("all");
+    updateParams({ brand: brandSlug, subcategory: "all" });
+  };
+
+  const handleSubCategoryChange = (subCategory: string) => {
+    setSelectedSubCategory(subCategory);
+    updateParams({ subcategory: subCategory });
+  };
+
+  const handleGenderChange = (gender: string) => {
+    setSelectedGender(gender);
+    updateParams({ gender });
   };
 
   return (
     <div className="min-h-screen pt-24 pb-16">
       <div className="container mx-auto px-6">
-        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -67,57 +104,66 @@ export default function ShopPage() {
           </h1>
         </motion.div>
 
-        {/* Filters */}
-        <div className="flex flex-wrap items-center justify-between gap-4 mb-12 pb-6 border-b border-border">
-          {/* Categories */}
+        <div className="flex flex-col gap-6 mb-12 pb-6 border-b border-border">
           <div className="flex flex-wrap gap-2">
             <button
-              onClick={() => handleCategoryChange("all")}
+              onClick={() => handleBrandChange("all")}
               className={`px-4 py-2 text-xs tracking-[0.15em] uppercase transition-all duration-300 ${
-                selectedCategory === "all"
+                selectedBrand === "all"
                   ? "bg-primary text-primary-foreground"
                   : "border border-border text-muted-foreground hover:border-primary hover:text-primary"
               }`}
             >
-              All
+              All Brands
             </button>
-            {categories.map((cat) => (
+            {brandHierarchy.map((brand) => (
               <button
-                key={cat.id}
-                onClick={() => handleCategoryChange(cat.slug)}
+                key={brand.slug}
+                onClick={() => handleBrandChange(brand.slug)}
                 className={`px-4 py-2 text-xs tracking-[0.15em] uppercase transition-all duration-300 ${
-                  selectedCategory === cat.slug
+                  selectedBrand === brand.slug
                     ? "bg-primary text-primary-foreground"
                     : "border border-border text-muted-foreground hover:border-primary hover:text-primary"
                 }`}
               >
-                {cat.name}
+                {brand.name}
               </button>
             ))}
           </div>
 
-          <div className="flex gap-4 items-center">
-            {/* Gender */}
-            <div className="flex gap-1">
-              {genders.map((g) => (
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="flex gap-1 flex-wrap">
+              {genderOptions.map((gender) => (
                 <button
-                  key={g}
-                  onClick={() => setSelectedGender(g)}
+                  key={gender.id}
+                  onClick={() => handleGenderChange(gender.id)}
                   className={`px-3 py-1 text-xs uppercase transition-all duration-300 ${
-                    selectedGender === g
+                    selectedGender === gender.id
                       ? "text-primary border-b border-primary"
                       : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
-                  {g}
+                  {gender.shortLabel}
                 </button>
               ))}
             </div>
 
-            {/* Sort */}
+            <select
+              value={selectedSubCategory}
+              onChange={(event) => handleSubCategoryChange(event.target.value)}
+              className="bg-input border border-border px-3 py-1 text-xs text-foreground focus:outline-none focus:border-primary"
+            >
+              <option value="all">All subcategories</option>
+              {subCategoryDefaults.map((category) => (
+                <option key={category.slug} value={category.slug}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+
             <select
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
+              onChange={(event) => setSortBy(event.target.value)}
               className="bg-input border border-border px-3 py-1 text-xs text-foreground focus:outline-none focus:border-primary"
             >
               {sortOptions.map((opt) => (
@@ -129,17 +175,31 @@ export default function ShopPage() {
           </div>
         </div>
 
-        {/* Products Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-8">
-          {filtered.map((product, i) => (
-            <ProductCard key={product.id} product={product} index={i} />
-          ))}
-        </div>
-
-        {filtered.length === 0 && (
+        {loading ? (
           <div className="text-center py-24 text-muted-foreground">
-            <p className="text-lg">No fragrances match your selection.</p>
+            <p className="text-lg">Loading fragrances...</p>
           </div>
+        ) : (
+          <>
+            {error && (
+              <div className="text-center py-6 text-sm uppercase tracking-[0.2em] text-destructive">
+                <p>{error}</p>
+                <p>Showing cached catalog while we wait for Firestore.</p>
+              </div>
+            )}
+
+            {filtered.length > 0 ? (
+              <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-8">
+                {filtered.map((product, i) => (
+                  <ProductCard key={product.id} product={product} index={i} />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-24 text-muted-foreground">
+                <p className="text-lg">No fragrances match your selection.</p>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

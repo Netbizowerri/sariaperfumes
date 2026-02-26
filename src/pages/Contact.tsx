@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 import { motion } from "framer-motion";
 import { Phone, Mail, MapPin, Send, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
@@ -26,11 +26,40 @@ const contactInfo = [
 export default function ContactPage() {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setSubmitted(true);
-    toast.success("Message sent! We'll get back to you shortly.");
+    setSubmitting(true);
+    try {
+      const response = await fetch("https://formspree.io/f/mreajlan", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          subject: "Website Contact Request",
+          message: form.message,
+        }),
+      });
+
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || "Could not send message.");
+      }
+
+      setSubmitted(true);
+      toast.success("Message sent! We'll get back to you shortly.");
+      setForm({ name: "", email: "", message: "" });
+    } catch (error) {
+      console.error(error);
+      toast.error("Unable to send your message. Please try again later.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -155,9 +184,10 @@ export default function ContactPage() {
                   </div>
                   <button
                     type="submit"
-                    className="w-full bg-primary text-primary-foreground py-4 text-sm font-medium tracking-[0.2em] uppercase hover:bg-gold-light transition-all duration-300 flex items-center justify-center gap-2 luxury-shadow"
+                    disabled={submitting}
+                    className="w-full bg-primary text-primary-foreground py-4 text-sm font-medium tracking-[0.2em] uppercase hover:bg-gold-light transition-all duration-300 flex items-center justify-center gap-2 luxury-shadow disabled:opacity-60 disabled:cursor-not-allowed"
                   >
-                    Send Message <ArrowRight className="w-4 h-4" />
+                    {submitting ? "Sending..." : "Send Message"} <ArrowRight className="w-4 h-4" />
                   </button>
                 </form>
               </div>

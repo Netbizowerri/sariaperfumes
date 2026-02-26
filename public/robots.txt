@@ -1,14 +1,5 @@
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
+Sitemap: https://www.sariaperfume.com/sitemap.xml
+# Add other environment-specific sitemaps (e.g., Netlify preview) if needed.
 
 User-agent: *
 Allow: /

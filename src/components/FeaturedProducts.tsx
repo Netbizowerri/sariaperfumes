@@ -1,10 +1,15 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { products } from "@/data/products";
+import { useProductsData } from "@/context/ProductsContext";
 import ProductCard from "./ProductCard";
 
 export default function FeaturedProducts() {
-  const featured = products.filter((p) => p.featured);
+  const { products, loading } = useProductsData();
+  const latestBase = products.slice(-4);
+  const latestProducts = [...latestBase].reverse();
+  const latestIds = new Set(latestBase.map((product) => product.id));
+  const manualFeatured = products.filter((product) => product.featured && !latestIds.has(product.id));
+  const featured = [...latestProducts, ...manualFeatured].slice(0, 4);
 
   return (
     <section className="py-24 bg-background">
@@ -21,11 +26,19 @@ export default function FeaturedProducts() {
           </h2>
         </motion.div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
-          {featured.map((product, i) => (
-            <ProductCard key={product.id} product={product} index={i} />
-          ))}
-        </div>
+        {loading ? (
+          <div className="text-center text-muted-foreground py-10">Loading featured products...</div>
+        ) : featured.length === 0 ? (
+          <div className="text-center text-muted-foreground py-10">
+            Featured products will appear here after you add them in admin.
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
+            {featured.map((product, i) => (
+              <ProductCard key={product.id} product={product} index={i} />
+            ))}
+          </div>
+        )}
 
         <motion.div
           initial={{ opacity: 0 }}

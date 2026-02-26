@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 import { motion } from "framer-motion";
 import { Phone, MapPin, CheckCircle, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
@@ -12,12 +12,41 @@ export default function DistributorPage() {
     location: "",
     shop_address: "",
   });
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Will connect to Supabase later
-    setSubmitted(true);
-    toast.success("Application submitted! We'll contact you shortly.");
+    setSubmitting(true);
+    try {
+      const response = await fetch("https://formspree.io/f/maqdvbpe", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          full_name: form.full_name,
+          phone: form.phone,
+          email: form.email,
+          location: form.location,
+          shop_address: form.shop_address,
+          subject: "Distributor Application",
+        }),
+      });
+
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || "Unable to submit your application.");
+      }
+
+      setSubmitted(true);
+      toast.success("Application submitted! We'll contact you shortly.");
+    } catch (error) {
+      console.error(error);
+      toast.error("We couldn't submit your application. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const benefits = [
@@ -175,9 +204,10 @@ export default function DistributorPage() {
                   </div>
                   <button
                     type="submit"
-                    className="w-full bg-primary text-primary-foreground py-4 text-sm font-medium tracking-[0.2em] uppercase hover:bg-gold-light transition-all duration-300 flex items-center justify-center gap-2 luxury-shadow"
+                    disabled={submitting}
+                    className="w-full bg-primary text-primary-foreground py-4 text-sm font-medium tracking-[0.2em] uppercase hover:bg-gold-light transition-all duration-300 flex items-center justify-center gap-2 luxury-shadow disabled:opacity-60 disabled:cursor-not-allowed"
                   >
-                    Submit Application <ArrowRight className="w-4 h-4" />
+                    {submitting ? "Submitting..." : "Submit Application"} <ArrowRight className="w-4 h-4" />
                   </button>
                 </form>
               </div>

@@ -1,17 +1,23 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import heroImage from "@/assets/hero-bg.jpg";
+
+const desktopHero = "https://i.ibb.co/dwN5nCSS/Saria-Perfumes-4.jpg";
+const mobileHero = "https://i.ibb.co/hxT1TT6Z/Saria-Perfumes-1080-x-1080-px-2.jpg";
 
 export default function HeroSection() {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0">
-        <img
-          src={heroImage}
-          alt="Saria Perfumes luxury fragrance"
-          className="w-full h-full object-cover object-[75%_center] lg:object-[70%_center]"
-        />
+        <picture className="w-full h-full block">
+          <source srcSet={desktopHero} media="(min-width: 1024px)" />
+          <img
+            src={mobileHero}
+            alt="Saria Perfumes luxury fragrance"
+            className="w-full h-full object-cover object-center"
+            loading="lazy"
+          />
+        </picture>
         <div className="absolute inset-0 bg-gradient-to-r from-[#0B0B0B]/75 via-[#0B0B0B]/40 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0B0B0B]/60 via-transparent to-[#0B0B0B]/20" />
       </div>
@@ -31,52 +37,43 @@ export default function HeroSection() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.8 }}
-            className="text-3xl md:text-5xl lg:text-6xl font-bold leading-[0.95] mb-8 text-white"
+            className="text-5xl md:text-6xl lg:text-7xl font-extrabold leading-[0.95] mb-8 text-white"
           >
-            Experience{" "}
-            <span className="text-gold-gradient-light">Turkish Luxury</span>{" "}
-            in Every Drop
+            Pure Turkish <span className="text-gold-gradient">Elegance</span>
           </motion.h1>
 
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.8 }}
-            className="text-white/70 text-lg md:text-xl max-w-lg mb-10 font-light leading-relaxed"
+            transition={{ delay: 0.55, duration: 0.8 }}
+            className="text-base text-white leading-relaxed mb-6"
           >
-            Discover the art of Turkish niche perfumery with Saria's exclusive collections — crafted for those who demand the extraordinary.
+            Discover the art of Turkish perfumery with Saria 69, Black Kiss, Royal Touch, and
+            Holigan — four signature collections crafted in Istanbul to deliver bold character,
+            timeless elegance, and unforgettable presence.
           </motion.p>
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8, duration: 0.8 }}
+            transition={{ delay: 0.75, duration: 0.8 }}
             className="flex flex-wrap gap-4"
           >
             <Link
               to="/shop"
-              className="bg-gold text-[#0B0B0B] px-8 py-4 text-sm font-medium tracking-[0.2em] uppercase hover:bg-gold-light transition-all duration-300 luxury-shadow"
+              className="inline-flex items-center justify-center px-8 py-4 text-xs font-semibold tracking-[0.3em] uppercase border border-white text-white hover:bg-white hover:text-black transition"
             >
-              Shop Now
+              Shop Collection
             </Link>
             <Link
               to="/distributor"
-              className="border border-gold text-gold px-8 py-4 text-sm font-medium tracking-[0.2em] uppercase hover:bg-gold hover:text-[#0B0B0B] transition-all duration-300"
+              className="inline-flex items-center justify-center px-8 py-4 text-xs font-semibold tracking-[0.3em] uppercase border border-white/40 text-white/90 hover:bg-white/90 hover:text-black transition"
             >
-              Become a Distributor
+              Become A Distributor
             </Link>
           </motion.div>
         </div>
       </div>
-
-      {/* Scroll indicator */}
-      <motion.div
-        animate={{ y: [0, 8, 0] }}
-        transition={{ repeat: Infinity, duration: 2 }}
-        className="absolute bottom-10 left-1/2 -translate-x-1/2"
-      >
-        <div className="w-px h-12 bg-gradient-to-b from-transparent via-gold to-transparent" />
-      </motion.div>
     </section>
   );
 }
