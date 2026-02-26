@@ -10,10 +10,10 @@ export default function HeroSection() {
         <img
           src={heroImage}
           alt="Saria Perfumes luxury fragrance"
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover object-[75%_center] lg:object-[70%_center]"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0B0B0B]/80 via-[#0B0B0B]/60 to-[#0B0B0B]/30" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0B0B0B]/80 via-transparent to-[#0B0B0B]/40" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0B0B0B]/75 via-[#0B0B0B]/40 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0B0B0B]/60 via-transparent to-[#0B0B0B]/20" />
       </div>
 
       <div className="relative container mx-auto px-6 py-32">

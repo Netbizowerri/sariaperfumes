@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ShoppingBag } from "lucide-react";
 import { Product, formatPrice } from "@/data/products";
 import { useCart } from "@/context/CartContext";
@@ -11,6 +11,7 @@ interface ProductCardProps {
 
 export default function ProductCard({ product, index = 0 }: ProductCardProps) {
   const { addToCart } = useCart();
+  const navigate = useNavigate();
 
   return (
     <motion.div
@@ -38,6 +39,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
             onClick={(e) => {
               e.preventDefault();
               addToCart(product);
+              navigate("/cart");
             }}
             className="absolute bottom-4 left-4 right-4 bg-primary text-primary-foreground py-3 text-xs tracking-[0.2em] uppercase font-medium opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-500 flex items-center justify-center gap-2"
           >
