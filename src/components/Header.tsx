@@ -19,11 +19,12 @@ export default function Header() {
   const location = useLocation();
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-border">
       <div className="container mx-auto px-6 flex items-center justify-between h-16 lg:h-20">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2">
-          <img src={logoImg} alt="Saria Perfume" className="h-10 lg:h-12 w-auto" />
+        <Link to="/" className="flex items-center gap-3">
+          <img src={logoImg} alt="Saria Perfume" className="h-12 lg:h-14 w-auto" />
+          <span className="font-display text-lg lg:text-xl font-bold tracking-[0.15em] uppercase text-foreground">Saria Perfumes</span>
         </Link>
 
         {/* Desktop Nav */}
