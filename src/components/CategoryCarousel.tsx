@@ -54,7 +54,7 @@ export default function CategoryCarousel() {
           {/* Scrollable Container */}
           <div
             ref={scrollRef}
-            className="flex gap-6 overflow-x-auto scrollbar-hide px-6 snap-x snap-mandatory"
+            className="flex gap-6 overflow-x-auto scrollbar-hide px-6 snap-x snap-mandatory justify-center"
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           >
             {categories.map((cat, i) => (

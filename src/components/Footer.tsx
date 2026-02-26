@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Phone, MapPin, Mail } from "lucide-react";
+import logoImg from "@/assets/logo.jpeg";
 
 export default function Footer() {
   return (
@@ -8,7 +9,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Brand */}
           <div>
-            <h3 className="font-display text-2xl font-bold text-gold-gradient mb-4">SARIA</h3>
+            <img src={logoImg} alt="Saria Perfume" className="h-14 w-auto mb-4" />
             <p className="text-muted-foreground text-sm leading-relaxed">
               Premium Turkish Designer Perfumes. Makers of Jutenya Niche Series, Blackiss Series & Royal Touch Series.
             </p>
