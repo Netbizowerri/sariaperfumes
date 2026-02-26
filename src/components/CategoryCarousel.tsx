@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -18,9 +18,35 @@ const categoryImages: Record<string, string> = {
 export default function CategoryCarousel() {
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  // Clone items for infinite scroll: [...items, ...items, ...items]
+  const infiniteCategories = [...categories, ...categories, ...categories];
+
+  // Start in the middle set so user can scroll both directions
+  useEffect(() => {
+    if (scrollRef.current) {
+      const singleSetWidth = scrollRef.current.scrollWidth / 3;
+      scrollRef.current.scrollLeft = singleSetWidth;
+    }
+  }, []);
+
+  const handleScroll = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const singleSetWidth = el.scrollWidth / 3;
+
+    // If scrolled past the end of the middle set, jump back to middle
+    if (el.scrollLeft >= singleSetWidth * 2) {
+      el.scrollLeft -= singleSetWidth;
+    }
+    // If scrolled before the start of the middle set, jump forward to middle
+    if (el.scrollLeft <= 0) {
+      el.scrollLeft += singleSetWidth;
+    }
+  }, []);
+
   const scroll = (dir: "left" | "right") => {
     if (scrollRef.current) {
-      const amount = dir === "left" ? -280 : 280;
+      const amount = dir === "left" ? -220 : 220;
       scrollRef.current.scrollBy({ left: amount, behavior: "smooth" });
     }
   };
@@ -58,23 +84,20 @@ export default function CategoryCarousel() {
           {/* Scrollable Container */}
           <div
             ref={scrollRef}
-            className="flex gap-6 overflow-x-auto scrollbar-hide px-6 snap-x snap-mandatory justify-center"
+            onScroll={handleScroll}
+            className="flex gap-6 overflow-x-auto scrollbar-hide px-6 snap-x"
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           >
-            {categories.map((cat, i) => (
-              <motion.div
-                key={cat.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="snap-center"
+            {infiniteCategories.map((cat, i) => (
+              <div
+                key={`${cat.id}-${i}`}
+                className="snap-center shrink-0"
               >
                 <Link
                   to={`/shop?category=${cat.slug}`}
-                  className="flex flex-col items-center gap-4 min-w-[200px] md:min-w-[250px] group"
+                  className="flex flex-col items-center gap-4 min-w-[180px] md:min-w-[250px] group"
                 >
-                  <div className="w-40 h-40 md:w-48 md:h-48 rounded-full border-2 border-border group-hover:border-primary transition-all duration-500 flex items-center justify-center bg-card group-hover:bg-primary/5 overflow-hidden p-4">
+                  <div className="w-36 h-36 md:w-48 md:h-48 rounded-full border-2 border-border group-hover:border-primary transition-all duration-500 flex items-center justify-center bg-card group-hover:bg-primary/5 overflow-hidden p-4">
                     <img
                       src={categoryImages[cat.slug]}
                       alt={cat.name}
@@ -85,7 +108,7 @@ export default function CategoryCarousel() {
                     {cat.name}
                   </h3>
                 </Link>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
