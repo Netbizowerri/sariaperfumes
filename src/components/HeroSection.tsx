@@ -46,11 +46,20 @@ export default function HeroSection() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.55, duration: 0.8 }}
-            className="text-base text-white leading-relaxed mb-6"
+            className="text-base text-white leading-relaxed mb-6 hidden md:block"
           >
             Discover the art of Turkish perfumery with Saria 69, Black Kiss, Royal Touch, and
             Holigan — four signature collections crafted in Istanbul to deliver bold character,
             timeless elegance, and unforgettable presence.
+          </motion.p>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.55, duration: 0.8 }}
+            className="text-base text-white leading-relaxed mb-6 md:hidden"
+          >
+            Discover the art of Turkish perfumery with Saria 69, Black Kiss, Royal Touch, and
+            Holigan
           </motion.p>
 
           <motion.div

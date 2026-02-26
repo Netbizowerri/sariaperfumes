@@ -25,7 +25,9 @@ export default function Header() {
         {/* Logo */}
         <Link to="/" className="flex items-center gap-3">
           <img src={logoImg} alt="Saria Perfume" className="h-12 lg:h-14 w-auto" />
-          <span className="font-display text-lg lg:text-xl font-bold tracking-[0.15em] uppercase text-foreground">Saria Perfumes</span>
+          <span className="font-display font-bold uppercase text-foreground text-sm tracking-[0.12em] md:text-lg md:tracking-[0.15em] lg:text-xl">
+            Saria Perfumes
+          </span>
         </Link>
 
         {/* Desktop Nav */}
