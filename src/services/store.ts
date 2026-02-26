@@ -158,13 +158,22 @@ export async function deleteProductById(id: string, imageUrl?: string): Promise<
 }
 
 export async function createOrder(input: OrderInput): Promise<void> {
-  await postOrderToFormspree(input);
-  const safeDb = requireDb();
-  await addDoc(collection(safeDb, "orders"), {
-    ...input,
-    status: "pending",
-    createdAt: serverTimestamp(),
-  });
+  try {
+    await postOrderToFormspree(input);
+  } catch (error) {
+    console.warn("Formspree notification failed, continuing with Firestore write.", error);
+  }
+
+  try {
+    const safeDb = requireDb();
+    await addDoc(collection(safeDb, "orders"), {
+      ...input,
+      status: "pending",
+      createdAt: serverTimestamp(),
+    });
+  } catch (error) {
+    console.warn("Firestore order write skipped", error);
+  }
 }
 
 function parseOrder(docId: string, payload: Record<string, unknown>): OrderRecord {
