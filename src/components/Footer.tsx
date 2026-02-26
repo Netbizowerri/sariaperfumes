@@ -52,7 +52,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Brand */}
           <div>
-            <img src={logoImg} alt="Saria Perfume" className="h-14 w-auto mb-4" />
+            <img src={logoImg} alt="Saria Perfume" className="h-18 w-auto mb-4" />
             <p className="text-muted-foreground text-sm leading-relaxed">
               Premium Turkish Designer Perfumes. Makers of Jutenya Niche Series, Blackiss Series & Royal Touch Series.
             </p>
