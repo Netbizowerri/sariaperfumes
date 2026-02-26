@@ -3,12 +3,16 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { categories } from "@/data/products";
+import catSaria69 from "@/assets/cat-saria69.png";
+import catBlackKiss from "@/assets/cat-blackkiss.png";
+import catRoyalTouch from "@/assets/cat-royaltouch.png";
+import catHoligan from "@/assets/cat-holigan.jpg";
 
 const categoryImages: Record<string, string> = {
-  "saria-69": "S69",
-  "black-kiss": "BK",
-  "royal-touch": "RT",
-  "holigan": "HLG",
+  "saria-69": catSaria69,
+  "black-kiss": catBlackKiss,
+  "royal-touch": catRoyalTouch,
+  "holigan": catHoligan,
 };
 
 export default function CategoryCarousel() {
@@ -70,10 +74,12 @@ export default function CategoryCarousel() {
                   to={`/shop?category=${cat.slug}`}
                   className="flex flex-col items-center gap-4 min-w-[200px] md:min-w-[250px] group"
                 >
-                  <div className="w-40 h-40 md:w-48 md:h-48 rounded-full border-2 border-border group-hover:border-primary transition-all duration-500 flex items-center justify-center bg-card group-hover:bg-primary/5">
-                    <span className="text-3xl md:text-4xl font-bold text-primary/60 group-hover:text-primary transition-colors duration-300 tracking-wider">
-                      {categoryImages[cat.slug]}
-                    </span>
+                  <div className="w-40 h-40 md:w-48 md:h-48 rounded-full border-2 border-border group-hover:border-primary transition-all duration-500 flex items-center justify-center bg-card group-hover:bg-primary/5 overflow-hidden p-4">
+                    <img
+                      src={categoryImages[cat.slug]}
+                      alt={cat.name}
+                      className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500"
+                    />
                   </div>
                   <h3 className="text-sm md:text-base font-medium tracking-[0.15em] uppercase text-foreground group-hover:text-primary transition-colors duration-300">
                     {cat.name}
