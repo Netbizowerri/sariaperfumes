@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingBag, Menu, X, Home, Store, Users, Info, Phone, ChevronRight } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import logoImg from "@/assets/logo.jpeg";
 
 const navLinks = [
   { to: "/", label: "Home", icon: Home },
@@ -22,12 +23,7 @@ export default function Header() {
       <div className="container mx-auto px-6 flex items-center justify-between h-16 lg:h-20">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
-          <span className="font-display text-2xl lg:text-3xl font-bold text-gold-gradient tracking-wide">
-            SARIA
-          </span>
-          <span className="hidden sm:block text-xs font-body text-muted-foreground tracking-[0.3em] uppercase">
-            Perfumes
-          </span>
+          <img src={logoImg} alt="Saria Perfume" className="h-10 lg:h-12 w-auto" />
         </Link>
 
         {/* Desktop Nav */}
