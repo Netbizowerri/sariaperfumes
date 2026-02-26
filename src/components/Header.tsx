@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingBag, Menu, X, Home, Store, Users, Info, Phone, ChevronRight } from "lucide-react";
 import { useCart } from "@/context/CartContext";
@@ -15,8 +15,9 @@ const navLinks = [
 
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { totalItems, setIsOpen } = useCart();
+  const { totalItems } = useCart();
   const location = useLocation();
+  const navigate = useNavigate();
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-border">
@@ -47,7 +48,7 @@ export default function Header() {
         {/* Actions */}
         <div className="flex items-center gap-4">
           <button
-            onClick={() => setIsOpen(true)}
+            onClick={() => navigate("/cart")}
             className="relative text-foreground hover:text-primary transition-colors"
             aria-label="Open cart"
           >
@@ -120,7 +121,7 @@ export default function Header() {
                 <button
                   onClick={() => {
                     setMobileOpen(false);
-                    setIsOpen(true);
+                    navigate("/cart");
                   }}
                   className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-foreground hover:bg-muted active:bg-muted transition-all duration-200"
                 >

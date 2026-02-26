@@ -1,4 +1,4 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ShoppingBag, ArrowLeft } from "lucide-react";
 import { products, formatPrice } from "@/data/products";
@@ -8,6 +8,7 @@ import ProductCard from "@/components/ProductCard";
 export default function ProductDetail() {
   const { slug } = useParams();
   const { addToCart } = useCart();
+  const navigate = useNavigate();
   const product = products.find((p) => p.slug === slug);
 
   if (!product) {
@@ -75,46 +76,12 @@ export default function ProductDetail() {
               </span>
             </div>
 
-            {/* Fragrance Pyramid */}
-            <div className="mb-8 space-y-4">
-              <h3 className="font-display text-lg">Fragrance Pyramid</h3>
-              <div className="space-y-3">
-                <div className="flex items-start gap-4">
-                  <span className="text-xs text-primary tracking-[0.2em] uppercase w-20 pt-1">Top</span>
-                  <div className="flex flex-wrap gap-2">
-                    {product.top_notes.map((n) => (
-                      <span key={n} className="px-3 py-1 text-xs border border-border text-muted-foreground">
-                        {n}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                <div className="flex items-start gap-4">
-                  <span className="text-xs text-primary tracking-[0.2em] uppercase w-20 pt-1">Heart</span>
-                  <div className="flex flex-wrap gap-2">
-                    {product.middle_notes.map((n) => (
-                      <span key={n} className="px-3 py-1 text-xs border border-primary/30 text-foreground">
-                        {n}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                <div className="flex items-start gap-4">
-                  <span className="text-xs text-primary tracking-[0.2em] uppercase w-20 pt-1">Base</span>
-                  <div className="flex flex-wrap gap-2">
-                    {product.base_notes.map((n) => (
-                      <span key={n} className="px-3 py-1 text-xs bg-primary/10 border border-primary/20 text-primary">
-                        {n}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-
             {/* CTA */}
             <button
-              onClick={() => addToCart(product)}
+              onClick={() => {
+                addToCart(product);
+                navigate("/cart");
+              }}
               className="bg-primary text-primary-foreground px-8 py-4 text-sm font-medium tracking-[0.2em] uppercase hover:bg-gold-light transition-all duration-300 flex items-center justify-center gap-2 luxury-shadow w-full md:w-auto"
             >
               <ShoppingBag className="w-4 h-4" />
@@ -135,7 +102,7 @@ export default function ProductDetail() {
             <h2 className="font-display text-3xl mb-8 text-center">
               You May Also <span className="text-gold-gradient">Love</span>
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-2 gap-4 md:gap-8">
               {related.map((p, i) => (
                 <ProductCard key={p.id} product={p} index={i} />
               ))}
