@@ -181,13 +181,6 @@ export default function ShopPage() {
           </div>
         ) : (
           <>
-            {error && (
-              <div className="text-center py-6 text-sm uppercase tracking-[0.2em] text-destructive">
-                <p>{error}</p>
-                <p>Showing cached catalog while we wait for Firestore.</p>
-              </div>
-            )}
-
             {filtered.length > 0 ? (
               <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-8">
                 {filtered.map((product, i) => (
