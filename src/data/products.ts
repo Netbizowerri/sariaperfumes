@@ -20,6 +20,7 @@ export interface Product {
   featured: boolean;
   image_url: string;
   scent_profile: string[];
+  updatedAt?: number;
 }
 
 export type ProductInput = Omit<Product, "id">;

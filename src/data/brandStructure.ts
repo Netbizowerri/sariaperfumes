@@ -25,7 +25,7 @@ const brandLogos: BrandLogo = {
   "black-kiss": "https://i.ibb.co/N5vgz0h/sas2.png",
 };
 
-const brandNames = ["Saria 69", "Holigan", "Royal Touch", "Black Kiss"];
+const brandNames = ["Saria 69", "Holigan", "Royal Touch", "Black Kiss", "Jutenya"];
 
 export const brandHierarchy: BrandGroup[] = brandNames.map((brand) => {
   const slug = normalizeSlug(brand);

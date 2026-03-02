@@ -30,6 +30,15 @@ function parseProducts(snapshotData: Record<string, unknown>, id: string): Produ
     typeof value === "number" && Number.isFinite(value) ? value : fallback;
   const getStringArray = (value: unknown) =>
     Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
+  const parseTimestamp = (value: unknown) => {
+    if (value && typeof value === "object") {
+      const maybeTimestamp = value as { toMillis?: () => number };
+      if (typeof maybeTimestamp.toMillis === "function") {
+        return maybeTimestamp.toMillis();
+      }
+    }
+    return getNumber(value);
+  };
 
   const genderRaw = getString(snapshotData.gender);
   const gender = genderRaw === "men" || genderRaw === "women" || genderRaw === "unisex"
@@ -38,6 +47,7 @@ function parseProducts(snapshotData: Record<string, unknown>, id: string): Produ
   const brandRaw = getString(snapshotData.brand) || "Saria 69";
   const rawBrandSlug = getString(snapshotData.brandSlug) || getString(snapshotData.brand_slug);
   const brandSlug = rawBrandSlug || normalizeSlug(brandRaw);
+  const updatedAt = parseTimestamp(snapshotData.updatedAt);
 
   return {
     id,
@@ -58,6 +68,7 @@ function parseProducts(snapshotData: Record<string, unknown>, id: string): Produ
     stock_quantity: getNumber(snapshotData.stock_quantity),
     featured: Boolean(snapshotData.featured),
     image_url: getString(snapshotData.image_url),
+    updatedAt,
   };
 }
 

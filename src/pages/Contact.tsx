@@ -1,25 +1,28 @@
 import { FormEvent, useState } from "react";
 import { motion } from "framer-motion";
-import { Phone, Mail, MapPin, Send, ArrowRight } from "lucide-react";
+import { Phone, MapPin, Send, ArrowRight, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
 
 const contactInfo = [
   {
-    icon: Phone,
-    label: "Phone",
-    value: "08039201119",
-    href: "tel:08039201119",
-  },
-  {
-    icon: Mail,
-    label: "Email",
-    value: "info@sariaperfumes.com",
-    href: "mailto:info@sariaperfumes.com",
-  },
-  {
     icon: MapPin,
-    label: "Locations",
-    value: "Abuja · Lagos · Southeast Nigeria",
+    label: "Address",
+    value: [
+      "1. NEXT Cash and Carry Kado Abuja.",
+      "2. E3/E4 Niger Bridge Head Approach Asaba road Onitsha.",
+    ],
+  },
+  {
+    icon: Phone,
+    label: "WhatsApp",
+    value: "+2348039201119",
+    href: "https://wa.me/2348039201119",
+  },
+  {
+    icon: MessageSquare,
+    label: "Line",
+    value: "+2348037132666",
+    href: "tel:+2348037132666",
   },
 ];
 
@@ -90,28 +93,39 @@ export default function ContactPage() {
           >
             <h2 className="font-display text-2xl mb-8">Reach Us</h2>
             <div className="space-y-6 mb-10">
-              {contactInfo.map((item) => (
-                <div key={item.label} className="flex items-start gap-4">
-                  <div className="w-12 h-12 border border-primary/30 flex items-center justify-center shrink-0">
-                    <item.icon className="w-5 h-5 text-primary" />
+              {contactInfo.map((item) => {
+                const lines = Array.isArray(item.value) ? item.value : [item.value];
+                return (
+                  <div key={item.label} className="flex items-start gap-4">
+                    <div className="w-12 h-12 border border-primary/30 flex items-center justify-center shrink-0">
+                      <item.icon className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground tracking-[0.15em] uppercase mb-1">
+                        {item.label}
+                      </p>
+                      {lines.map((line, index) =>
+                        item.href && index === 0 ? (
+                          <a
+                            key={`${item.label}-${index}`}
+                            href={item.href}
+                            className="text-foreground hover:text-primary transition-colors font-medium block"
+                          >
+                            {line}
+                          </a>
+                        ) : (
+                          <p
+                            key={`${item.label}-${index}`}
+                            className="text-foreground font-medium leading-relaxed"
+                          >
+                            {line}
+                          </p>
+                        ),
+                      )}
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground tracking-[0.15em] uppercase mb-1">
-                      {item.label}
-                    </p>
-                    {item.href ? (
-                      <a
-                        href={item.href}
-                        className="text-foreground hover:text-primary transition-colors font-medium"
-                      >
-                        {item.value}
-                      </a>
-                    ) : (
-                      <p className="text-foreground font-medium">{item.value}</p>
-                    )}
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             <div className="p-6 border border-border">

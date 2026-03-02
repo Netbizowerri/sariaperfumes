@@ -5,6 +5,7 @@ import { useProductsData } from "@/context/ProductsContext";
 import ProductCard from "@/components/ProductCard";
 import { brandHierarchy } from "@/data/brandStructure";
 import { genderOptions, subCategoryDefaults } from "@/data/categoryConfig";
+import { Search } from "lucide-react";
 
 const sortOptions = [
   { value: "default", label: "Featured" },
@@ -30,6 +31,7 @@ export default function ShopPage() {
   const [selectedSubCategory, setSelectedSubCategory] = useState(initialSubCategory);
   const [selectedGender, setSelectedGender] = useState(initialGender);
   const [sortBy, setSortBy] = useState("default");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const filtered = useMemo(() => {
     let result = [...products];
@@ -41,6 +43,22 @@ export default function ShopPage() {
     }
     if (selectedGender !== "all") {
       result = result.filter((p) => p.gender === selectedGender);
+    }
+    const normalizedQuery = searchQuery.trim().toLowerCase();
+    if (normalizedQuery) {
+      result = result.filter((product) => {
+        const haystack = [
+          product.name,
+          product.brand,
+          product.category,
+          product.short_description,
+          product.long_description,
+          product.scent_profile.join(" "),
+        ]
+          .join(" ")
+          .toLowerCase();
+        return haystack.includes(normalizedQuery);
+      });
     }
     switch (sortBy) {
       case "price-asc":
@@ -54,7 +72,7 @@ export default function ShopPage() {
         break;
     }
     return result;
-  }, [products, selectedBrand, selectedSubCategory, selectedGender, sortBy]);
+  }, [products, selectedBrand, selectedSubCategory, selectedGender, sortBy, searchQuery]);
 
   const updateParams = (updates: Partial<Record<"brand" | "subcategory" | "gender", string>>) => {
     const nextParams = new URLSearchParams(searchParams);
@@ -103,6 +121,30 @@ export default function ShopPage() {
             The <span className="text-gold-gradient">Boutique</span>
           </h1>
         </motion.div>
+
+        <div className="flex justify-center mb-10">
+          <div className="w-full max-w-3xl">
+            <label htmlFor="shop-search" className="sr-only">
+              Search products
+            </label>
+            <div className="relative">
+              <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">
+                <Search className="w-4 h-4" />
+              </span>
+              <input
+                id="shop-search"
+                type="search"
+                placeholder="Search by brand, name, scent notes, or subcategory"
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+                className="w-full border border-border rounded-full bg-background/60 px-4 py-3 pl-10 text-xs uppercase tracking-[0.2em] placeholder:text-muted-foreground focus:outline-none focus:border-primary transition"
+              />
+            </div>
+            <p className="text-[10px] uppercase tracking-[0.4em] text-muted-foreground text-right mt-3">
+              Advanced search
+            </p>
+          </div>
+        </div>
 
         <div className="flex flex-col gap-6 mb-12 pb-6 border-b border-border">
           <div className="flex flex-wrap gap-2">

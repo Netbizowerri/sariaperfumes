@@ -1,6 +1,6 @@
 import { FormEvent, useState } from "react";
 import { Link } from "react-router-dom";
-import { Phone, MapPin, Mail } from "lucide-react";
+import { Phone, MapPin, Mail, Facebook, Instagram, Youtube } from "lucide-react";
 import { toast } from "sonner";
 import logoImg from "@/assets/logo.jpeg";
 
@@ -99,6 +99,38 @@ export default function Footer() {
                 <span>Abuja · Lagos · Southeast Nigeria</span>
               </li>
             </ul>
+            <div className="mt-6 flex items-center gap-3">
+              <span className="text-[10px] tracking-[0.4em] uppercase text-muted-foreground">
+                Follow
+              </span>
+              <a
+                href="https://www.facebook.com"
+                target="_blank"
+                rel="noreferrer"
+                className="w-11 h-11 rounded-full border border-border flex items-center justify-center text-muted-foreground hover:text-primary transition-colors"
+                aria-label="Facebook"
+              >
+                <Facebook className="w-5 h-5" />
+              </a>
+              <a
+                href="https://www.instagram.com"
+                target="_blank"
+                rel="noreferrer"
+                className="w-11 h-11 rounded-full border border-border flex items-center justify-center text-muted-foreground hover:text-primary transition-colors"
+                aria-label="Instagram"
+              >
+                <Instagram className="w-5 h-5" />
+              </a>
+              <a
+                href="https://www.youtube.com/@SariaPerfume"
+                target="_blank"
+                rel="noreferrer"
+                className="w-11 h-11 rounded-full border border-border flex items-center justify-center text-muted-foreground hover:text-primary transition-colors"
+                aria-label="YouTube"
+              >
+                <Youtube className="w-5 h-5" />
+              </a>
+            </div>
           </div>
 
           {/* Newsletter */}

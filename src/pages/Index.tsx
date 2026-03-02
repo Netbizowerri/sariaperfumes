@@ -1,4 +1,5 @@
 import HeroSection from "@/components/HeroSection";
+import AboutPreviewSection from "@/components/AboutPreviewSection";
 import CategoryCarousel from "@/components/CategoryCarousel";
 import FeaturedProducts from "@/components/FeaturedProducts";
 import AboutSection from "@/components/AboutSection";
@@ -16,6 +17,7 @@ const Index = () => {
         image="https://i.ibb.co/dwN5nCSS/Saria-Perfumes-4.jpg"
       />
       <HeroSection />
+      <AboutPreviewSection />
       <CategoryCarousel />
       <FeaturedProducts />
       <AboutSection />

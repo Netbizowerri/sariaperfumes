@@ -8,16 +8,18 @@ export default function HeroSection() {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background */}
-      <div className="absolute inset-0">
-        <picture className="w-full h-full block">
-          <source srcSet={desktopHero} media="(min-width: 1024px)" />
-          <img
-            src={mobileHero}
-            alt="Saria Perfumes luxury fragrance"
-            className="w-full h-full object-cover object-center"
-            loading="lazy"
-          />
-        </picture>
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute inset-0 ken-burns">
+          <picture className="w-full h-full block">
+            <source srcSet={desktopHero} media="(min-width: 1024px)" />
+            <img
+              src={mobileHero}
+              alt="Saria Perfumes luxury fragrance"
+              className="w-full h-full object-cover object-center"
+              loading="lazy"
+            />
+          </picture>
+        </div>
         <div className="absolute inset-0 bg-gradient-to-r from-[#0B0B0B]/75 via-[#0B0B0B]/40 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0B0B0B]/60 via-transparent to-[#0B0B0B]/20" />
       </div>
