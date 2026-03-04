@@ -104,11 +104,19 @@ async function postOrderToFormspree(input: OrderInput) {
   if (!response.ok) {
     const text = await response.text();
     throw new Error(
-      `Order notification failed: ${response.status} ${
-        text || response.statusText
+      `Order notification failed: ${response.status} ${text || response.statusText
       }`,
     );
   }
+}
+
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error(`${label} timed out after ${ms / 1000}s`)), ms),
+    ),
+  ]);
 }
 
 function requireDb() {
@@ -129,8 +137,8 @@ export async function uploadProductImage(file: File, slug: string): Promise<stri
   const safeStorage = requireStorage();
   const fileName = `${Date.now()}-${slug || "product"}-${file.name}`;
   const imageRef = ref(safeStorage, `products/${fileName}`);
-  await uploadBytes(imageRef, file);
-  return getDownloadURL(imageRef);
+  await withTimeout(uploadBytes(imageRef, file), 15_000, "Image upload");
+  return withTimeout(getDownloadURL(imageRef), 10_000, "Image URL fetch");
 }
 
 function buildProductPayload(input: ProductInput, withCompatFields = true) {
@@ -171,14 +179,22 @@ export async function addProduct(input: ProductInput): Promise<void> {
   };
 
   try {
-    await addDoc(collection(safeDb, "products"), basePayload);
+    await withTimeout(
+      addDoc(collection(safeDb, "products"), basePayload),
+      15_000,
+      "Firestore product write",
+    );
   } catch (error) {
     const fallbackPayload = {
       ...buildProductPayload(input, false),
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     };
-    await addDoc(collection(safeDb, "products"), fallbackPayload);
+    await withTimeout(
+      addDoc(collection(safeDb, "products"), fallbackPayload),
+      15_000,
+      "Firestore product write (fallback)",
+    );
     console.warn("Product saved with fallback schema after primary schema failed.", error);
   }
 }
@@ -191,13 +207,21 @@ export async function updateProduct(id: string, input: ProductInput): Promise<vo
   };
 
   try {
-    await updateDoc(doc(safeDb, "products", id), basePayload);
+    await withTimeout(
+      updateDoc(doc(safeDb, "products", id), basePayload),
+      15_000,
+      "Firestore product update",
+    );
   } catch (error) {
     const fallbackPayload = {
       ...buildProductPayload(input, false),
       updatedAt: serverTimestamp(),
     };
-    await updateDoc(doc(safeDb, "products", id), fallbackPayload);
+    await withTimeout(
+      updateDoc(doc(safeDb, "products", id), fallbackPayload),
+      15_000,
+      "Firestore product update (fallback)",
+    );
     console.warn("Product updated with fallback schema after primary schema failed.", error);
   }
 }
@@ -286,7 +310,7 @@ export function subscribeOrders(
 ) {
   if (!db) {
     onError(firebaseInitError ?? new Error("Firestore is unavailable"));
-    return () => {};
+    return () => { };
   }
   const ordersQuery = query(collection(db, "orders"), orderBy("createdAt", "desc"));
 
@@ -326,7 +350,7 @@ export function subscribeBrands(
 ) {
   if (!db) {
     onError(firebaseInitError ?? new Error("Firestore is unavailable"));
-    return () => {};
+    return () => { };
   }
 
   const brandsQuery = query(collection(db, "brands"), orderBy("name", "asc"));
@@ -364,7 +388,7 @@ export function subscribeSubCategories(
 ) {
   if (!db) {
     onError(firebaseInitError ?? new Error("Firestore is unavailable"));
-    return () => {};
+    return () => { };
   }
 
   const subCategoriesQuery = query(

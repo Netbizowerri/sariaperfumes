@@ -309,13 +309,7 @@ export default function AdminDashboardPage() {
     try {
       let imageUrl = form.image_url;
       if (imageFile) {
-        try {
-          imageUrl = await uploadProductImage(imageFile, slug);
-        } catch (uploadError) {
-          console.warn("Storage upload failed, using inline image fallback.", uploadError);
-          imageUrl = await compressImageToDataUrl(imageFile);
-          toast.warning("Image storage upload failed; using compressed inline image instead.");
-        }
+        imageUrl = await compressImageToDataUrl(imageFile);
       }
       if (!imageUrl) return toast.error("Please add a product image");
 

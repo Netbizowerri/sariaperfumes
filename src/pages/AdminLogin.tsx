@@ -24,9 +24,24 @@ export default function AdminLoginPage() {
       await signIn(email.trim(), password);
       toast.success("Login successful");
       navigate("/admin");
-    } catch (error) {
+    } catch (error: unknown) {
       console.error(error);
-      toast.error("Could not sign in. Check your admin credentials.");
+      const code =
+        typeof error === "object" && error !== null && "code" in error
+          ? (error as { code: string }).code
+          : "";
+      const friendlyMessages: Record<string, string> = {
+        "auth/wrong-password": "Incorrect password. Please try again.",
+        "auth/user-not-found": "No admin account found with this email.",
+        "auth/invalid-credential": "Invalid email or password.",
+        "auth/invalid-email": "Please enter a valid email address.",
+        "auth/too-many-requests": "Too many attempts. Please wait and try again.",
+        "auth/network-request-failed": "Network error. Check your connection.",
+      };
+      toast.error(
+        friendlyMessages[code] ||
+          "Could not sign in. Check your admin credentials.",
+      );
     } finally {
       setSubmitting(false);
     }
