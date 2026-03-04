@@ -1,5 +1,6 @@
 import { db, firebaseInitError, storage } from "@/lib/firebase";
 import { Product, ProductInput, formatPrice } from "@/data/products";
+import { normalizeSlug } from "@/lib/slug";
 import {
   addDoc,
   collection,
@@ -45,6 +46,13 @@ export interface OrderInput {
 export interface OrderRecord extends OrderInput {
   id: string;
   status: OrderStatus;
+  createdAtMs: number | null;
+}
+
+export interface AdminCatalogItem {
+  id: string;
+  name: string;
+  slug: string;
   createdAtMs: number | null;
 }
 
@@ -125,21 +133,73 @@ export async function uploadProductImage(file: File, slug: string): Promise<stri
   return getDownloadURL(imageRef);
 }
 
+function buildProductPayload(input: ProductInput, withCompatFields = true) {
+  const description = (input.long_description || input.short_description || "").trim();
+  const shortDescription = (input.short_description || description).trim();
+  const longDescription = (input.long_description || description || shortDescription).trim();
+  const stockQuantity = Number.isFinite(input.stock_quantity) ? Math.max(0, input.stock_quantity) : 0;
+
+  return {
+    name: input.name.trim(),
+    slug: input.slug.trim(),
+    brand: input.brand.trim(),
+    brandSlug: input.brandSlug.trim(),
+    category: input.category.trim(),
+    price: Number.isFinite(input.price) ? Math.max(0, input.price) : 0,
+    volume_ml: Number.isFinite(input.volume_ml) ? Math.max(1, input.volume_ml) : 1,
+    gender: input.gender,
+    short_description: shortDescription,
+    long_description: longDescription,
+    ...(withCompatFields ? { description: longDescription } : {}),
+    top_notes: Array.isArray(input.top_notes) ? input.top_notes : [],
+    middle_notes: Array.isArray(input.middle_notes) ? input.middle_notes : [],
+    base_notes: Array.isArray(input.base_notes) ? input.base_notes : [],
+    scent_profile: Array.isArray(input.scent_profile) ? input.scent_profile : [],
+    stock_quantity: stockQuantity,
+    ...(withCompatFields ? { qty: stockQuantity, quantity: stockQuantity } : {}),
+    featured: Boolean(input.featured),
+    image_url: input.image_url,
+  };
+}
+
 export async function addProduct(input: ProductInput): Promise<void> {
   const safeDb = requireDb();
-  await addDoc(collection(safeDb, "products"), {
-    ...input,
+  const basePayload = {
+    ...buildProductPayload(input),
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
-  });
+  };
+
+  try {
+    await addDoc(collection(safeDb, "products"), basePayload);
+  } catch (error) {
+    const fallbackPayload = {
+      ...buildProductPayload(input, false),
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    };
+    await addDoc(collection(safeDb, "products"), fallbackPayload);
+    console.warn("Product saved with fallback schema after primary schema failed.", error);
+  }
 }
 
 export async function updateProduct(id: string, input: ProductInput): Promise<void> {
   const safeDb = requireDb();
-  await updateDoc(doc(safeDb, "products", id), {
-    ...input,
+  const basePayload = {
+    ...buildProductPayload(input),
     updatedAt: serverTimestamp(),
-  });
+  };
+
+  try {
+    await updateDoc(doc(safeDb, "products", id), basePayload);
+  } catch (error) {
+    const fallbackPayload = {
+      ...buildProductPayload(input, false),
+      updatedAt: serverTimestamp(),
+    };
+    await updateDoc(doc(safeDb, "products", id), fallbackPayload);
+    console.warn("Product updated with fallback schema after primary schema failed.", error);
+  }
 }
 
 export async function deleteProductById(id: string, imageUrl?: string): Promise<void> {
@@ -238,6 +298,107 @@ export function subscribeOrders(
     },
     onError,
   );
+}
+
+function parseAdminCatalogItem(
+  docId: string,
+  payload: Record<string, unknown>,
+): AdminCatalogItem {
+  const getString = (value: unknown) => (typeof value === "string" ? value : "");
+  const rawName = getString(payload.name).trim();
+  const name = rawName || "Untitled";
+  const rawSlug = getString(payload.slug).trim();
+  const slug = rawSlug || normalizeSlug(name);
+  const createdAtRaw = payload.createdAt as { toMillis?: () => number } | undefined;
+  const createdAtMs = createdAtRaw?.toMillis ? createdAtRaw.toMillis() : null;
+
+  return {
+    id: docId,
+    name,
+    slug,
+    createdAtMs,
+  };
+}
+
+export function subscribeBrands(
+  onChange: (brands: AdminCatalogItem[]) => void,
+  onError: (error: unknown) => void,
+) {
+  if (!db) {
+    onError(firebaseInitError ?? new Error("Firestore is unavailable"));
+    return () => {};
+  }
+
+  const brandsQuery = query(collection(db, "brands"), orderBy("name", "asc"));
+  return onSnapshot(
+    brandsQuery,
+    (snapshot) => {
+      onChange(snapshot.docs.map((item) => parseAdminCatalogItem(item.id, item.data())));
+    },
+    onError,
+  );
+}
+
+export async function addBrand(name: string): Promise<void> {
+  const safeDb = requireDb();
+  const trimmed = name.trim();
+  if (!trimmed) {
+    throw new Error("Brand name is required");
+  }
+  await addDoc(collection(safeDb, "brands"), {
+    name: trimmed,
+    slug: normalizeSlug(trimmed),
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
+}
+
+export async function deleteBrandById(id: string): Promise<void> {
+  const safeDb = requireDb();
+  await deleteDoc(doc(safeDb, "brands", id));
+}
+
+export function subscribeSubCategories(
+  onChange: (subCategories: AdminCatalogItem[]) => void,
+  onError: (error: unknown) => void,
+) {
+  if (!db) {
+    onError(firebaseInitError ?? new Error("Firestore is unavailable"));
+    return () => {};
+  }
+
+  const subCategoriesQuery = query(
+    collection(db, "subcategories"),
+    orderBy("name", "asc"),
+  );
+
+  return onSnapshot(
+    subCategoriesQuery,
+    (snapshot) => {
+      onChange(snapshot.docs.map((item) => parseAdminCatalogItem(item.id, item.data())));
+    },
+    onError,
+  );
+}
+
+export async function addSubCategory(name: string): Promise<void> {
+  const safeDb = requireDb();
+  const trimmed = name.trim();
+  if (!trimmed) {
+    throw new Error("Sub-category name is required");
+  }
+
+  await addDoc(collection(safeDb, "subcategories"), {
+    name: trimmed,
+    slug: normalizeSlug(trimmed),
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
+}
+
+export async function deleteSubCategoryById(id: string): Promise<void> {
+  const safeDb = requireDb();
+  await deleteDoc(doc(safeDb, "subcategories", id));
 }
 
 export async function updateOrderStatus(orderId: string, status: OrderStatus): Promise<void> {

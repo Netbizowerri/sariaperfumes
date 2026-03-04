@@ -48,6 +48,16 @@ function parseProducts(snapshotData: Record<string, unknown>, id: string): Produ
   const rawBrandSlug = getString(snapshotData.brandSlug) || getString(snapshotData.brand_slug);
   const brandSlug = rawBrandSlug || normalizeSlug(brandRaw);
   const updatedAt = parseTimestamp(snapshotData.updatedAt);
+  const shortDescription =
+    getString(snapshotData.short_description) || getString(snapshotData.description);
+  const longDescription =
+    getString(snapshotData.long_description) ||
+    getString(snapshotData.description) ||
+    shortDescription;
+  const stockQuantity =
+    getNumber(snapshotData.stock_quantity) ||
+    getNumber(snapshotData.qty) ||
+    getNumber(snapshotData.quantity);
 
   return {
     id,
@@ -59,13 +69,13 @@ function parseProducts(snapshotData: Record<string, unknown>, id: string): Produ
     price: getNumber(snapshotData.price),
     volume_ml: getNumber(snapshotData.volume_ml, 100),
     gender,
-    short_description: getString(snapshotData.short_description),
-    long_description: getString(snapshotData.long_description),
+    short_description: shortDescription,
+    long_description: longDescription,
     top_notes: getStringArray(snapshotData.top_notes),
     middle_notes: getStringArray(snapshotData.middle_notes),
     base_notes: getStringArray(snapshotData.base_notes),
     scent_profile: getStringArray(snapshotData.scent_profile),
-    stock_quantity: getNumber(snapshotData.stock_quantity),
+    stock_quantity: stockQuantity,
     featured: Boolean(snapshotData.featured),
     image_url: getString(snapshotData.image_url),
     updatedAt,
